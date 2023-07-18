@@ -1,0 +1,18 @@
+name: KatzcraftWarp
+version: '1.0'
+main: de.castmax1311.katzcraftwarp.WarpPlugin
+description: A simple plugin for warping
+api-version: '1.16'
+commands:
+  addwarp:
+    description: Create a warp point
+    usage: /addwarp <warp-Name>
+  deletewarp:
+    description: Remove a warp point
+    usage: /deletewarp <warp-Name>
+  warp:
+    description: Teleport to a warp point
+    usage: /warp <warp-Name>
+  warplist:
+    description: See the list of existing warps
+    usage: /warplist
