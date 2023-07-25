@@ -1,5 +1,5 @@
 name: KatzcraftWarp
-version: '1.0'
+version: '1.1'
 main: de.castmax1311.katzcraftwarp.WarpPlugin
 description: A simple plugin for warping
 api-version: '1.16'
@@ -16,3 +16,4 @@ commands:
   warplist:
     description: See the list of existing warps
     usage: /warplist
+

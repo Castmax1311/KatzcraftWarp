@@ -1,5 +1,6 @@
 package de.castmax1311.katzcraftwarp;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class WarpPlugin extends JavaPlugin implements CommandExecutor {
+public class WarpPlugin extends JavaPlugin implements CommandExecutor, TabCompleter {
 
     private Map<String, Location> warps;
     private FileConfiguration warpsConfig;
@@ -50,23 +51,27 @@ public class WarpPlugin extends JavaPlugin implements CommandExecutor {
         saveWarpsToConfig();
     }
 
+    public static String formatMessage(String message) {
+        return "[" + ChatColor.BLUE + "KatzcraftWarp" + ChatColor.RESET + "] " + message;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("addwarp")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage("This command can be used only by players");
+                sender.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "This command can only be executed by players."));
                 return true;
             }
 
             Player player = (Player) sender;
 
             if (!player.hasPermission("warpplugin.addwarp")) {
-                player.sendMessage("You don't have permission to set warps");
+                player.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "You don't have permission to set warps"));
                 return true;
             }
 
             if (args.length != 1) {
-                player.sendMessage("Use: /addwarp <warp-Name>");
+                player.sendMessage(WarpPlugin.formatMessage("Use: /addwarp <warp-Name>"));
                 return true;
             }
 
@@ -74,26 +79,26 @@ public class WarpPlugin extends JavaPlugin implements CommandExecutor {
             Location warpLocation = player.getLocation();
 
             warps.put(warpName, warpLocation);
-            player.sendMessage("Warp \"" + warpName + "\" has been set");
+            player.sendMessage(WarpPlugin.formatMessage(ChatColor.GREEN + "Warp \"" + warpName + "\" has been set"));
 
             return true;
         }
 
         if (command.getName().equalsIgnoreCase("deletewarp")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage("This command can be used only by players");
+                sender.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "This command can only be executed by players."));
                 return true;
             }
 
             Player player = (Player) sender;
 
             if (!player.hasPermission("warpplugin.deletewarp")) {
-                player.sendMessage("You don't have permission to delete warps");
+                player.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "You don't have permission to delete warps"));
                 return true;
             }
 
             if (args.length != 1) {
-                player.sendMessage("Use: /deletewarp <warp-Name>");
+                player.sendMessage(WarpPlugin.formatMessage("Use: /deletewarp <warp-Name>"));
                 return true;
             }
 
@@ -101,70 +106,59 @@ public class WarpPlugin extends JavaPlugin implements CommandExecutor {
 
             if (warps.containsKey(warpName)) {
                 warps.remove(warpName);
-                player.sendMessage("Warp \"" + warpName + "\" has been deleted");
+                player.sendMessage(WarpPlugin.formatMessage(ChatColor.GREEN + "Warp \"" + warpName + "\" has been deleted"));
             } else {
-                player.sendMessage("Warp \"" + warpName + "\" doesn't exist");
+                player.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "Warp \"" + warpName + "\" doesn't exist"));
             }
 
             return true;
         }
 
-        if (command.getName().equalsIgnoreCase("warp")) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage("This command can be used only by players");
-                return true;
-            }
-
-            Player player = (Player) sender;
-
-            if (!player.hasPermission("warpplugin.warp")) {
-                player.sendMessage("You don't have permission to use warps");
-                return true;
-            }
-
-            if (args.length != 1) {
-                player.sendMessage("Use: /warp <Warp-Name>");
-                return true;
-            }
-
-            String warpName = args[0];
-            Location warpLocation = warps.get(warpName);
-
-            if (warpLocation == null) {
-                player.sendMessage("Warp \"" + warpName + "\" doesn't exist");
-                return true;
-            }
-
-            player.teleport(warpLocation);
-            player.sendMessage("You were teleported to \"" + warpName + "\"");
-
+        else if (command.getName().equalsIgnoreCase("warp")) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "This command can only be executed by players."));
             return true;
         }
 
-        if (command.getName().equalsIgnoreCase("warplist")) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage("This command can be used only by players");
-                return true;
-            }
+        Player player = (Player) sender;
 
-            Player player = (Player) sender;
-
-            if (!player.hasPermission("warpplugin.warplist")) {
-                player.sendMessage("You don't have permission to view the warp list");
-                return true;
-            }
-
-            player.sendMessage("Available warps:");
-
-            for (String warpName : warps.keySet()) {
-                player.sendMessage("- " + warpName);
-            }
-
+        if (args.length != 1) {
+            player.sendMessage(WarpPlugin.formatMessage("Use: /warp <Warp-Name>"));
             return true;
         }
+
+        String warpName = args[0];
+        Location warpLocation = warps.get(warpName);
+
+        if (warpLocation == null) {
+            player.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "Warp \"" + warpName + "\" doesn't exist"));
+            return true;
+        }
+
+        player.teleport(warpLocation);
+        player.sendMessage(WarpPlugin.formatMessage(ChatColor.GREEN + "You were teleported to \"" + warpName + "\""));
+
+        return true;
+
+    } else if (command.getName().equalsIgnoreCase("warplist")) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(WarpPlugin.formatMessage(ChatColor.RED + "This command can only be executed by players."));
+            return true;
+        }
+
+        Player player = (Player) sender;
+
+        player.sendMessage(WarpPlugin.formatMessage(ChatColor.GREEN + "Available warps:"));
+
+        for (String warpName : warps.keySet()) {
+            player.sendMessage("- " + warpName);
+        }
+
+        return true;
+    }
 
         return false;
-    }
+}
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
